@@ -3,7 +3,11 @@ import colors
 import buttonScan
 import random
 import thread
+import picamera
+import subprocess
+import uuid
 
+camera = picamera.PiCamera()
 randomColors = [[True, False, False], [False, True, False], [False, False, True], [True, True, False], [True, False, True], [False, True, True]]
 password = [[True, False, True], [False, True, True], [False, True, True], [False, False, True], [True, False, False], [False, True, False]]
 yCoords = [7, 11, 13, 15]
@@ -48,6 +52,9 @@ def checkPassword(combo):
 		matrix = singleColor([False, True, False])
 	else:
 		matrix = singleColor([True, False, False])
+		name = "image" + str(uuid.uuid4()) + ".jpg"
+		camera.capture(name)
+		subprocess.call(["./notify.sh"], shell=True)
 	return matrix
 
 def singleColor(color):
