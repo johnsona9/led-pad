@@ -12,12 +12,16 @@ testMatrix = [[[True, True, True], [True, False, True], [False, False, True], [T
 
 for x in red:
 	GPIO.setup(x, GPIO.OUT)
+	GPIO.output(x, False)
 for x in green:
 	GPIO.setup(x, GPIO.OUT)
+	GPIO.output(x, False)
 for x in blue:
 	GPIO.setup(x, GPIO.OUT)
+	GPIO.output(x, False)
 for x in cath:
 	GPIO.setup(x, GPIO.OUT)
+	GPIO.output(x, True)
 
 def off():
 	for x in red:
@@ -35,7 +39,7 @@ def cathodesUp():
 
 # This function takes in a 3-dimensional array
 # rows, columns, and colors are the dimensions
-def handleColorsRow(colorMatrix, sleep):
+def handleColors(colorMatrix, sleep):
 	while 1:
 		for row in range(0, len(colorMatrix)):
 			for column in range(0, len(colorMatrix[row])):
@@ -49,18 +53,5 @@ def handleColorsRow(colorMatrix, sleep):
 				GPIO.output(green[row], False)
 				GPIO.output(blue[row], False)
 
-def handleColorsColumn(colorMatrix, sleep):
-	while 1:
-		for row in range(0, len(colorMatrix)):
-			for column in range(0, len(colorMatrix[row])):
-				GPIO.output(cath[row], False)
-				GPIO.output(red[column], colorMatrix[row][column][0])
-				GPIO.output(green[column], colorMatrix[row][column][1])
-				GPIO.output(blue[column], colorMatrix[row][column][2])
-				time.sleep(sleep)
-				GPIO.output(cath[row], True)
-				GPIO.output(red[column], False)
-				GPIO.output(green[column], False)
-				GPIO.output(blue[column], False)
-handleColorsColumn(testMatrix, 0.0005)
+handleColors(testMatrix, 0.0001)
 #off()
