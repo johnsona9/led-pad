@@ -52,9 +52,7 @@ def checkPassword(combo):
 		matrix = singleColor([False, True, False])
 	else:
 		matrix = singleColor([True, False, False])
-		name = "image" + str(uuid.uuid4()) + ".jpg"
-		camera.capture(name)
-		subprocess.call(["./notify.sh"], shell=True)
+		thread.start_new_thread(handleNotification, ())
 	return matrix
 
 def singleColor(color):
@@ -64,5 +62,9 @@ def singleColor(color):
 			final[x].append(color)
 	return final
 
+def handleNotification():
+	name = "image" + str(uuid.uuid4()) + ".jpg"
+	camera.capture(name)
+	subprocess.call(["./notify.sh " + name], shell=True)
 
 run()
