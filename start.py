@@ -6,19 +6,31 @@ import thread
 import picamera
 import subprocess
 import uuid
+import RPi.GPIO as GPIO
+GPIO.setmode(GPIO.BOARD)
+GPIO.setwarnings(False)
+
+GPIO.setup(4, GPIO.IN)
 
 camera = picamera.PiCamera()
 randomColors = [[True, False, False], [False, True, False], [False, False, True], [True, True, False], [True, False, True], [False, True, True]]
 password = [[True, False, True], [False, True, True], [False, True, True], [False, False, True], [True, False, False], [False, True, False]]
+#purple, teal, teal, blue, red, green
 yCoords = [7, 11, 13, 15]
 xCoords = [40, 38, 36, 32]
+initialTime = time.time() / 60
+
+def main():
+    run()
+    while 1:
+        checkMotion()
+
 
 def run():
 	matrix = randomizeMatrix()
 	lastScan = 0	
 	combination = []
-	runner = 0	
-	while 1:
+	while int(time.time() - initialTime) < 60:
 		colors.handleColors(matrix, 0.0005)
 		x = buttonScan.scan()
 		if (lastScan is None and x is not None):
@@ -27,13 +39,11 @@ def run():
 			if len(combination) is 6:
 				matrix = checkPassword(combination)
 				combination = []
-				runner = 0
+				initialTime = time.time() / 60
 		elif (lastScan is not None and x is None):
 			lastScan = x
-		runner += 1
-		if runner == 500:
+		if int(time.time() - initialTime) % 5 == 0:
 			matrix = randomizeMatrix()
-			runner = 0
 
 def randomizeMatrix():
 	final = [[], [], [], []]
@@ -67,4 +77,10 @@ def handleNotification():
 	camera.capture(name)
 	subprocess.call(["./notify.sh " + name], shell=True)
 
-run()
+def checkMotion():
+    if GPIO.input(4):
+        intialTime = time.time() / 60
+        run()
+
+
+main()
