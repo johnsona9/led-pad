@@ -74,7 +74,7 @@ def singleColor(color):
 	return final
 
 def handleNotification():
-	name = "image" + str(uuid.uuid4()) + ".jpg"
+	name = "image_" + str(uuid.uuid4()) + ".jpg"
 	camera.capture(name)
 	subprocess.call(["./notify.sh " + name], shell=True)
 
