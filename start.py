@@ -7,6 +7,7 @@ import random
 
 import picamera
 import RPi.GPIO as GPIO
+from multiprocessing import Process
 
 import colors
 import buttonScan
@@ -14,6 +15,7 @@ import buttonScan
 GPIO.setmode(GPIO.BOARD)
 GPIO.setwarnings(False)
 GPIO.setup(5, GPIO.IN)
+GPIO.setup(3, GPIO.OUT)
 
 
 camera = picamera.PiCamera()
@@ -30,6 +32,7 @@ def main():
         checkMotion()
 
 def run(initialTime):
+	print "new run"
 	matrix = randomizeMatrix()
 	lastScan = 0
 	combination = []
@@ -37,9 +40,6 @@ def run(initialTime):
 	while int(time.time() - initialTime) < 60:
 		colors.handleColors(matrix, 0.0005)
 		x = buttonScan.scan()
-		if int(time.time() - initialTime) % 7 == 0 and switchTime != int(time.time() - initialTime):
-			switchTime = int(time.time() - initialTime)
-			matrix = randomizeMatrix()
 		if (lastScan is None and x is not None):
 			lastScan = x
 			combination.append(getColorValue(matrix, x))
@@ -49,6 +49,10 @@ def run(initialTime):
 				combination = []
 		elif (lastScan is not None and x is None):
 			lastScan = x
+		if int(time.time() - initialTime) % 7 == 0 and switchTime != int(time.time() - initialTime):
+			switchTime = int(time.time() - initialTime)
+			matrix = randomizeMatrix()
+			GPIO.output(3, False)
 
 def randomizeMatrix():
 	final = [[], [], [], []]
@@ -63,8 +67,10 @@ def getColorValue(matrix, buttonPressed):
 	return matrix[x][y]
 
 def checkPassword(combo):
+	print "checking"
 	if combo == password:
 		matrix = singleColor([False, True, False])
+		GPIO.output(3, True)
 	else:
 		matrix = singleColor([True, False, False])
 		thread.start_new_thread(handleNotification, ())
