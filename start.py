@@ -7,10 +7,12 @@ import picamera
 import subprocess
 import uuid
 import RPi.GPIO as GPIO
+from multiprocessing import Process
 
 GPIO.setmode(GPIO.BOARD)
 GPIO.setwarnings(False)
 GPIO.setup(5, GPIO.IN)
+GPIO.setup(3, GPIO.OUT)
 
 camera = picamera.PiCamera()
 randomColors = [[True, False, False], [False, True, False], [False, False, True], [True, True, False], [True, False, True], [False, True, True]]
@@ -45,6 +47,7 @@ def run(initialTime):
 		if int(time.time() - initialTime) % 7 == 0 and switchTime != int(time.time() - initialTime):
 			switchTime = int(time.time() - initialTime)
 			matrix = randomizeMatrix()
+			GPIO.output(3, False)
 
 def randomizeMatrix():
 	final = [[], [], [], []]
@@ -61,6 +64,7 @@ def getColorValue(matrix, buttonPressed):
 def checkPassword(combo):
 	if combo == password:
 		matrix = singleColor([False, True, False])
+		GPIO.output(3, True)
 	else:
 		matrix = singleColor([True, False, False])
 		thread.start_new_thread(handleNotification, ())
