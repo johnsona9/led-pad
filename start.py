@@ -1,17 +1,22 @@
+""" Starting file for the led-pad lock. File handles all top level aspects. """
 import time
-import colors
-import buttonScan
-import random
-import thread
-import picamera
 import subprocess
 import uuid
+import thread
+import random
+
+import picamera
 import RPi.GPIO as GPIO
+
+import colors
+import buttonScan
+
 
 GPIO.setmode(GPIO.BOARD)
 GPIO.setwarnings(False)
 GPIO.setup(5, GPIO.IN)
 
+<<<<<<< HEAD
 camera = picamera.PiCamera()
 randomColors = [[True, False, False], [False, True, False], [False, False, True], [True, True, False], [True, False, True], [False, True, True]]
 password = [[True, False, True], [False, True, True], [False, True, True], [False, False, True], [True, False, False], [False, True, False]]
