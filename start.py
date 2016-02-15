@@ -29,7 +29,7 @@ def main():
         check_motion()
 
 def run(initialTime):
-	matrix = randomizeMatrix()
+	matrix = randomize_matrix()
 	lastScan = 0
 	combination = []
 	switchTime = 0
@@ -38,16 +38,16 @@ def run(initialTime):
 		x = buttonScan.scan()
 		if (lastScan is None and x is not None):
 			lastScan = x
-			combination.append(getColorValue(matrix, x))
+			combination.append(get_color_value(matrix, x))
 			if len(combination) is 6:
 				switchTime = int(time.time() - initialTime)
-				matrix = checkPassword(combination)
+				matrix = check_password(combination)
 				combination = []
 		elif (lastScan is not None and x is None):
 			lastScan = x
 		if int(time.time() - initialTime) % 7 == 0 and switchTime != int(time.time() - initialTime):
 			switchTime = int(time.time() - initialTime)
-			matrix = randomizeMatrix()
+			matrix = randomize_matrix()
 			GPIO.output(3, False)
 
 def randomize_matrix():
@@ -62,12 +62,12 @@ def get_color_value(matrix, buttonPressed):
     y = Y_COORDS.index(buttonPressed[0])
     return matrix[x][y]
 
-def checkPassword(combo):
-	if combo == password:
-		matrix = singleColor([False, True, False])
+def check_password(combo):
+	if combo == PASSWORD:
+		matrix = single_color([False, True, False])
 		GPIO.output(3, True)
 	else:
-		matrix = singleColor([True, False, False])
+		matrix = single_color([True, False, False])
 		thread.start_new_thread(handleNotification, ())
 	return matrix
 
