@@ -16,7 +16,6 @@ GPIO.setmode(GPIO.BOARD)
 GPIO.setwarnings(False)
 GPIO.setup(5, GPIO.IN)
 
-<<<<<<< HEAD
 camera = picamera.PiCamera()
 randomColors = [[True, False, False], [False, True, False], [False, False, True], [True, True, False], [True, False, True], [False, True, True]]
 password = [[True, False, True], [False, True, True], [False, True, True], [False, False, True], [True, False, False], [False, True, False]]
@@ -38,18 +37,19 @@ def run(initialTime):
 	while int(time.time() - initialTime) < 60:
 		colors.handleColors(matrix, 0.0005)
 		x = buttonScan.scan()
+		if int(time.time() - initialTime) % 7 == 0 and switchTime != int(time.time() - initialTime):
+			switchTime = int(time.time() - initialTime)
+			matrix = randomizeMatrix()
 		if (lastScan is None and x is not None):
 			lastScan = x
 			combination.append(getColorValue(matrix, x))
 			if len(combination) is 6:
+				switchTime = int(time.time() - initialTime)
 				matrix = checkPassword(combination)
 				combination = []
-				initialTime = time.time()
+				print "new combo in loop"
 		elif (lastScan is not None and x is None):
 			lastScan = x
-		if int(time.time() - initialTime) % 7 == 0 and switchTime != int(time.time() - initialTime):
-			switchTime = int(time.time() - initialTime)
-			matrix = randomizeMatrix()
 
 def randomizeMatrix():
 	final = [[], [], [], []]
