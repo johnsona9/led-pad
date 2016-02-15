@@ -8,15 +8,18 @@ import random
 import picamera
 import RPi.GPIO as GPIO
 
+<<<<<<< HEAD
 import colors
 import buttonScan
 
 
+=======
+>>>>>>> de603be00dc5c66f1d7b66b1667dc08613904988
 GPIO.setmode(GPIO.BOARD)
 GPIO.setwarnings(False)
+GPIO.setup(5, GPIO.IN)
 
-GPIO.setup(4, GPIO.IN)
-
+<<<<<<< HEAD
 CAMERA = picamera.PiCamera()
 RANDOM_COLORS = [[True, False, False], [False, True, False], [False, False, True], [True, True, False], [True, False, True], [False, True, True]]
 PASSWORD = [[True, False, True], [False, True, True], [False, True, True], [False, False, True], [True, False, False], [False, True, False]]
@@ -98,5 +101,77 @@ def check_motion():
         INITIAL_TIME = time.time() / 60
         run()
 
+=======
+camera = picamera.PiCamera()
+randomColors = [[True, False, False], [False, True, False], [False, False, True], [True, True, False], [True, False, True], [False, True, True]]
+password = [[True, False, True], [False, True, True], [False, True, True], [False, False, True], [True, False, False], [False, True, False]]
+#purple, teal, teal, blue, red, green
+yCoords = [7, 11, 13, 15]
+xCoords = [40, 38, 36, 32]
+
+def main():
+    initialTime = time.time()
+    run(initialTime)
+    while 1:
+        checkMotion()
+
+def run(initialTime):
+	matrix = randomizeMatrix()
+	lastScan = 0	
+	combination = []
+	switchTime = 0
+	while int(time.time() - initialTime) < 60:
+		colors.handleColors(matrix, 0.0005)
+		x = buttonScan.scan()
+		if (lastScan is None and x is not None):
+			lastScan = x
+			combination.append(getColorValue(matrix, x))
+			if len(combination) is 6:
+				matrix = checkPassword(combination)
+				combination = []
+				initialTime = time.time()
+		elif (lastScan is not None and x is None):
+			lastScan = x
+		if int(time.time() - initialTime) % 7 == 0 and switchTime != int(time.time() - initialTime):
+			switchTime = int(time.time() - initialTime)
+			matrix = randomizeMatrix()
+
+def randomizeMatrix():
+	final = [[], [], [], []]
+	for x in range(0, len(final)):
+		for y in range(0, 4):
+			final[x].append(random.choice(randomColors))
+	return final
+
+def getColorValue(matrix, buttonPressed):
+	x = xCoords.index(buttonPressed[1])
+	y = yCoords.index(buttonPressed[0])
+	return matrix[x][y]
+
+def checkPassword(combo):
+	if combo == password:
+		matrix = singleColor([False, True, False])
+	else:
+		matrix = singleColor([True, False, False])
+		thread.start_new_thread(handleNotification, ())
+	return matrix
+
+def singleColor(color):
+	final = [[], [], [], []]
+	for x in range(0, len(final)):
+		for y in range(0, 4):
+			final[x].append(color)
+	return final
+
+def handleNotification():
+	name = "image_" + str(uuid.uuid4()) + ".jpg"
+	camera.capture(name)
+	subprocess.call(["./notify.sh " + name], shell=True)
+
+def checkMotion():
+    if not GPIO.input(5):
+        initialTime = time.time()
+        run(initialTime)
+>>>>>>> de603be00dc5c66f1d7b66b1667dc08613904988
 
 main()
