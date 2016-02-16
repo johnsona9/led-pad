@@ -13,8 +13,9 @@ import buttonScan
 
 GPIO.setmode(GPIO.BOARD)
 GPIO.setwarnings(False)
-GPIO.setup(5, GPIO.IN)
-GPIO.setup(3, GPIO.OUT)
+
+GPIO.setup(5, GPIO.OUT)
+GPIO.setup(3, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 CAMERA = picamera.PiCamera()
 RANDOM_COLORS = [[True, False, False], [False, True, False], [False, False, True], [True, True, False], [True, False, True], [False, True, True]]
 PASSWORD = [[True, False, True], [False, True, True], [False, True, True], [False, False, True], [True, False, False], [False, True, False]]
@@ -48,7 +49,7 @@ def run(initialTime):
 		if int(time.time() - initialTime) % 7 == 0 and switchTime != int(time.time() - initialTime):
 			switchTime = int(time.time() - initialTime)
 			matrix = randomize_matrix()
-			GPIO.output(3, False)
+			GPIO.output(5, False)
 
 def randomize_matrix():
     final = [[], [], [], []]
@@ -65,10 +66,10 @@ def get_color_value(matrix, buttonPressed):
 def check_password(combo):
 	if combo == PASSWORD:
 		matrix = single_color([False, True, False])
-		GPIO.output(3, True)
+		GPIO.output(5, True)
 	else:
 		matrix = single_color([True, False, False])
-		thread.start_new_thread(handleNotification, ())
+		thread.start_new_thread(handle_notification, ())
 	return matrix
 
 def single_color(color):
@@ -84,8 +85,8 @@ def handle_notification():
     subprocess.call(["./notify.sh " + name], shell=True)
 
 def check_motion():
-    if not GPIO.input(5):
-        initialTime = time.time()
+    if GPIO.input(3):
+	initialTime = time.time()
         run(initialTime)
 
 main()
