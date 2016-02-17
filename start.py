@@ -35,19 +35,23 @@ def run(initialTime):
     lastScan = 0
     combination = []
     switchTime = 0
-    while int(time.time() - initialTime) < 60:
+    timer = int(time.time() - initialTime)
+    while timer < 60:
+        timer = int(time.time() - initialTime)
         colors.handleColors(matrix, 0.0005)
         x = buttonScan.scan()
         if (lastScan is None and x is not None):
             lastScan = x
             combination.append(get_color_value(matrix, x))
             if len(combination) is 6:
+		initialTime = time.time()
                 switchTime = int(time.time() - initialTime)
+		timer = int(time.time() - initialTime) + 1
                 matrix = check_password(combination)
                 combination = []
         elif (lastScan is not None and x is None):
             lastScan = x
-        if int(time.time() - initialTime) % 7 == 0 and switchTime != int(time.time() - initialTime):
+        if timer % 7 == 0 and switchTime != timer:
             switchTime = int(time.time() - initialTime)
             matrix = randomize_matrix()
             GPIO.output(5, False)
