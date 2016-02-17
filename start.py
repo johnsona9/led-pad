@@ -22,6 +22,7 @@ PASSWORD = [[True, False, True], [False, True, True], [False, True, True], [Fals
 # purple, teal, teal, blue, red, green
 Y_COORDS = [7, 11, 13, 15]
 X_COORDS = [40, 38, 36, 32]
+WRONG_ENTERS = 0
 
 def main():
     initialTime = time.time()
@@ -30,26 +31,26 @@ def main():
         check_motion()
 
 def run(initialTime):
-	matrix = randomize_matrix()
-	lastScan = 0
-	combination = []
-	switchTime = 0
-	while int(time.time() - initialTime) < 60:
-		colors.handleColors(matrix, 0.0005)
-		x = buttonScan.scan()
-		if (lastScan is None and x is not None):
-			lastScan = x
-			combination.append(get_color_value(matrix, x))
-			if len(combination) is 6:
-				switchTime = int(time.time() - initialTime)
-				matrix = check_password(combination)
-				combination = []
-		elif (lastScan is not None and x is None):
-			lastScan = x
-		if int(time.time() - initialTime) % 7 == 0 and switchTime != int(time.time() - initialTime):
-			switchTime = int(time.time() - initialTime)
-			matrix = randomize_matrix()
-			GPIO.output(5, False)
+    matrix = randomize_matrix()
+    lastScan = 0
+    combination = []
+    switchTime = 0
+    while int(time.time() - initialTime) < 60:
+        colors.handleColors(matrix, 0.0005)
+        x = buttonScan.scan()
+        if (lastScan is None and x is not None):
+            lastScan = x
+            combination.append(get_color_value(matrix, x))
+            if len(combination) is 6:
+                switchTime = int(time.time() - initialTime)
+                matrix = check_password(combination)
+                combination = []
+        elif (lastScan is not None and x is None):
+            lastScan = x
+        if int(time.time() - initialTime) % 7 == 0 and switchTime != int(time.time() - initialTime):
+            switchTime = int(time.time() - initialTime)
+            matrix = randomize_matrix()
+            GPIO.output(5, False)
 
 def randomize_matrix():
     final = [[], [], [], []]
@@ -64,13 +65,16 @@ def get_color_value(matrix, buttonPressed):
     return matrix[x][y]
 
 def check_password(combo):
-	if combo == PASSWORD:
-		matrix = single_color([False, True, False])
-		GPIO.output(5, True)
-	else:
-		matrix = single_color([True, False, False])
-		thread.start_new_thread(handle_notification, ())
-	return matrix
+    if combo == PASSWORD:
+        matrix = single_color([False, True, False])
+        GPIO.output(5, True)
+    else:
+        matrix = single_color([True, False, False])
+        global WRONG_ENTERS
+        WRONG_ENTERS += 1
+        if WRONG_ENTERS % 3 == 0:
+            thread.start_new_thread(handle_notification, ())
+    return matrix
 
 def single_color(color):
     final = [[], [], [], []]
@@ -86,7 +90,7 @@ def handle_notification():
 
 def check_motion():
     if GPIO.input(3):
-	initialTime = time.time()
+        initialTime = time.time()
         run(initialTime)
 
 main()
